@@ -76,6 +76,10 @@ mono_socio
 
 Use `mono_socio` dataframe to answer the following questions:
 
+```{r}
+data = pivot_wider(mono_socio, names_from = "QuestionCategory", values_from = "Responce")
+```
+
 1. How many participants are mentioned in this dataframe?
 
 2. How many of them are males and females?
@@ -144,18 +148,17 @@ Filter out outliers. Remove from the table the following observations:
 Convert relevant variables to factors and save fitered data as `mono1`.
 
 ```{r}
-# mono1 <- 
-#  mono %>% 
-# filter here
+RTabove600 <- mono[mono$RT > 599,]
+NoFillers <- RTabove600[(RTabove600$TypeOfStimuli != "FillerUnacceptable") & (RTabove600$TypeOfStimuli != "FillerAcceptable"),]
+RTlog1 = log10(NoFillers$RT)
+mut1 = NoFillers %>% mutate(RT = RTlog1)
+mono1 <- mut1[(mut1$RT < (mean(RTlog1) + 3*sd(RTlog1))) & (mut1$RT > (mean(RTlog1) - 3*sd(RTlog1))),]
+mono1
 
-  
-  
-# select(ParticipantID, TypeOfStimuli, WordOrder, AcceptabilityJ = 
-# ResponseAcceptabilityJudgement, RTlog) %>% 
-#  mutate(ParticipantID = as.factor(ParticipantID),
-#    TypeOfStimuli = as.factor(TypeOfStimuli), 
-#         WordOrder = as.factor(WordOrder), 
-#         AcceptabilityJ = as.factor(AcceptabilityJ)) 
+mono1$ParticipantID <- as.factor(mono1$ParticipantID)
+mono1$TypeOfStimuli <- as.factor(mono1$TypeOfStimuli)
+mono1$WordOrder <- as.factor(mono1$WordOrder)
+mono1$AcceptabilityJ <- as.factor(mono1$ResponseAcceptabilityJudgement)
 ```
 ### 1.7 
 Calculate the number of observations in `mono1`.
@@ -171,9 +174,8 @@ Use either facet_wrap or facet_grid to make six plots.
 Note that we figures created in 1.8-1.0 may look different from what plotted in the article.
 
 ```{r}
-
-
-
+mpg_plot <- ggplot(mono1, aes(x = TypeOfStimuli, y = RT, fill = AcceptabilityJ)) +
+  geom_col(colour = "black", position = "dodge")
 ```
 
 ### 1.9
@@ -196,8 +198,7 @@ Reproduce Figure 7 from the article using ggplot.
 For the same data, draw a lineplot for group means and standard errors using `ggline()`:
 
 ```{r}
-
-
+ggline(mono1, "AcceptabilityJ", "RT", add = "mean_se")
 ```
 
 ## 2. Difference in reaction time
@@ -219,9 +220,10 @@ Use `group_by` and `summarise` to find mean logarithm of reaction time for each 
 ```
 
 ```{r}
-
-
-
+mean_rtlog_long <- mono1 %>%
+select(ParticipantID, WordOrder, RT) %>%
+group_by(ParticipantID, WordOrder) %>%
+summarise(RTlog = mean(RT))
 ```
 
 
@@ -270,8 +272,7 @@ How can you interpret difference with the result of 2.3?
 In fact, we can avoid manual calculation of difference and perform paired t-test using `t.test` function with parameter `paired = True`. Apply this function to your data and make sure you get the same result as in 2.4.
 
 ```{r}
-
-
+t.test(mean_rtlog$Congruent, mean_rtlog$Incongruent, paired = TRUE, alternative="less")
 ```
 
 ## 3. Difference between conditions
