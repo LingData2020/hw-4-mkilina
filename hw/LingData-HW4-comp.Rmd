@@ -78,6 +78,9 @@ Use `mono_socio` dataframe to answer the following questions:
 
 ```{r}
 data = pivot_wider(mono_socio, names_from = "QuestionCategory", values_from = "Responce")
+```
+
+```{r}
 data
 ```
 
@@ -193,8 +196,19 @@ mono1$ParticipantID <- as.factor(mono1$ParticipantID)
 mono1$TypeOfStimuli <- as.factor(mono1$TypeOfStimuli)
 mono1$WordOrder <- as.factor(mono1$WordOrder)
 mono1$AcceptabilityJ <- as.factor(mono1$ResponseAcceptabilityJudgement)
-```
 
+#  mono %>% 
+# filter here
+
+  
+  
+#3select(ParticipantID, TypeOfStimuli, WordOrder, AcceptabilityJ = 
+#ResponseAcceptabilityJudgement, RTlog) %>% 
+#mutate(ParticipantID = as.factor(ParticipantID),
+#  TypeOfStimuli = as.factor(TypeOfStimuli), 
+#       WordOrder = as.factor(WordOrder), 
+#       AcceptabilityJ = as.factor(AcceptabilityJ)) 
+```
 ### 1.7 
 Calculate the number of observations in `mono1`.
 ```{r}
@@ -209,6 +223,7 @@ Use either facet_wrap or facet_grid to make six plots.
 Note that we figures created in 1.8-1.0 may look different from what plotted in the article.
 
 ```{r}
+
 mpg_plot <- ggplot(mono1, aes(x = TypeOfStimuli, y = RT, fill = AcceptabilityJ)) +
   geom_col(colour = "black", position = "dodge")
 
@@ -239,6 +254,8 @@ For the same data, draw a lineplot for group means and standard errors using `gg
 
 ```{r}
 ggline(mono1, "AcceptabilityJ", "RT", add = "mean_se")
+
+
 ```
 
 ## 2. Difference in reaction time
@@ -260,6 +277,7 @@ Use `group_by` and `summarise` to find mean logarithm of reaction time for each 
 ```
 
 ```{r}
+
 mean_rtlog_long <- mono1 %>%
 select(ParticipantID, WordOrder, RT) %>%
 group_by(ParticipantID, WordOrder) %>%
@@ -327,6 +345,7 @@ In fact, we can avoid manual calculation of difference and perform paired t-test
 
 ```{r}
 t.test(mean_rtlog$Congruent, mean_rtlog$Incongruent, paired = TRUE, alternative="less")
+
 ```
 
 ## 3. Difference between conditions
